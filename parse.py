@@ -31,47 +31,60 @@ The file follows the following format:
          quit: end parsing
 See the file script for an example of the file format
 """
+
 def parse_file( filename, verticies, transform, screen, color ):
+
     finput = open(filename, 'r')
-    instructions = finput.read().split("\n")
+    orders = finput.read().split("\n")
     i = 0
-    while(i < len(instructions)):
-      upshift = 1
-      if(instructions[i] == 'ident'):
+    while(i < len(orders)):
+      counter = 1
+        #for each case we're gonna try to do the following
+        #first get the string, then convert it to what we want the respective function to be
+            if(orders[i] == "save"):
+                #if we want to save then clear the screen and save as png
+              clear_screen(screen)
+              draw_lines(verticies, screen, color)
+              display(screen)
+              save_extension(screen, orders[i+1])
+              counter = 2
+            if(orders[i] == "line"):
+                #if we wanna draww a line lets just use our handy addedge command
+              newverticies = orders[i+1].split()
+              add_edge(verticies, int(newverticies[0]), int(newverticies[1]), int(newverticies[2]), int(newverticies[3]), int(newverticies[4]), int(newverticies[5]))
+              counter = 2
+            if(orders[i] == "scale"):
+                #scaling is same as line
+              newverticies = orders[i+1].split()
+              matrix_mult(make_scale(int(newverticies[0]), int(newverticies[1]), int(newverticies[2])), transform)
+              counter = 2
+            if(orders[i] == "rotate"):
+                #roate we need to multiply our respective transformation matrix
+                #for each rotation matrix, we wanna multiple our respective coordinate by that matrix
+              rotator = orders[i+1].split()
+              if(rotator[0] == "x"):
+                matrix_mult(make_rotX(int(rotator[1])), transform)
+              if(rotator[0] == "y"):
+                matrix_mult(make_rotY(int(rotator[1])), transform)
+              if(rotator[0] == "z"):
+                matrix_mult(make_rotZ(int(rotator[1])), transform)
+              counter = 2
+            if(orders[i] == "move"):
+                #move just shifts it its the same as the other transoformations we got
+              newverticies = orders[i+1].split()
+              matrix_mult(make_translate(int(newverticies[0]), int(newverticies[1]), int(newverticies[2])), transform)
+              counter = 2
+      if(orders[i] == 'ident'):
+          #ez pez
         ident(transform)
-      if(instructions[i] == 'apply'):
+      if(orders[i] == 'apply'):
+          #ok this just makes all the magic happen
         matrix_mult(transform, verticies)
-      if(instructions[i] == 'display'):
+      if(orders[i] == 'display'):
+          #display from earlier, show the screen
         clear_screen(screen)
         draw_lines(verticies, screen, color)
         display(screen)
-      if(instructions[i] == "save"):
-        clear_screen(screen)
-        draw_lines(verticies, screen, color)
-        display(screen)
-        save_extension(screen, commands[i+1])
-        upshift = 2
-      if(instructions[i] == "line"):
-        newverticies = instructions[i+1].split()
-        add_edge(verticies, int(newverticies[0]), int(newverticies[1]), int(newverticies[2]), int(newverticies[3]), int(newverticies[4]), int(newverticies[5]))
-        upshift = 2
-      if(instructions[i] == "scale"):
-        newverticies = instructions[i+1].split()
-        matrix_mult(make_scale(int(newverticies[0]), int(newverticies[1]), int(newverticies[2])), transform)
-        upshift = 2
-      if(instructions[i] == "rotate"):
-        nextstuff = instructions[i+1].split()
-        if(nextstuff[0] == "x"):
-          matrix_mult(make_rotX(int(nextstuff[1])), transform)
-        if(nextstuff[0] == "y"):
-          matrix_mult(make_rotY(int(nextstuff[1])), transform)
-        if(nextstuff[0] == "z"):
-          matrix_mult(make_rotZ(int(nextstuff[1])), transform)
-        upshift = 2
-      if(instructions[i] == "move"):
-        newverticies = instructions[i+1].split()
-        matrix_mult(make_translate(int(newverticies[0]), int(newverticies[1]), int(newverticies[2])), transform)
-        upshift = 2
-      if(instructions[i] == "quit"):
+      if(orders[i] == "quit"):
         break
-      i += upshift
+      i += counter
