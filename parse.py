@@ -41,13 +41,7 @@ def parse_file( filename, verticies, transform, screen, color ):
       counter = 1
         #for each case we're gonna try to do the following
         #first get the string, then convert it to what we want the respective function to be
-            if(orders[i] == "save"):
-                #if we want to save then clear the screen and save as png
-              clear_screen(screen)
-              draw_lines(verticies, screen, color)
-              display(screen)
-              save_extension(screen, orders[i+1])
-              counter = 2
+            
             if(orders[i] == "line"):
                 #if we wanna draww a line lets just use our handy addedge command
               newverticies = orders[i+1].split()
